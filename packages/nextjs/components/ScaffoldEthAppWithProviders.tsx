@@ -21,12 +21,26 @@ export const queryClient = new QueryClient({
   },
 });
 
+// Component that uses Wagmi hooks
+const AppContent = ({ children }: { children: React.ReactNode }) => {
+  useInitializeNativeCurrencyPrice();
+
+  return (
+    <>
+      <div className="flex flex-col min-h-screen">
+        <Header />
+        <main className="relative flex flex-col flex-1">{children}</main>
+        <Footer />
+      </div>
+      <Toaster />
+    </>
+  );
+};
+
 export const AppWithProviders = ({ children }: { children: React.ReactNode }) => {
   const { resolvedTheme } = useTheme();
   const isDarkMode = resolvedTheme === "dark";
   const [mounted, setMounted] = useState(false);
-
-  useInitializeNativeCurrencyPrice();
 
   useEffect(() => {
     setMounted(true);
@@ -40,12 +54,7 @@ export const AppWithProviders = ({ children }: { children: React.ReactNode }) =>
           avatar={BlockieAvatar}
           theme={mounted ? (isDarkMode ? darkTheme() : lightTheme()) : lightTheme()}
         >
-          <div className="flex flex-col min-h-screen">
-            <Header />
-            <main className="relative flex flex-col flex-1">{children}</main>
-            <Footer />
-          </div>
-          <Toaster />
+          <AppContent>{children}</AppContent>
         </RainbowKitProvider>
       </QueryClientProvider>
     </WagmiConfig>
