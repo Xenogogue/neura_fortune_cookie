@@ -1,5 +1,31 @@
 import * as chains from "viem/chains";
 
+// Define Neura testnet
+const neuraTestnet = {
+  id: 267,
+  name: "Neura Testnet",
+  nativeCurrency: {
+    decimals: 18,
+    name: "ANKR",
+    symbol: "ANKR",
+  },
+  rpcUrls: {
+    default: {
+      http: ["https://testnet.rpc.neuraprotocol.io"],
+    },
+    public: {
+      http: ["https://testnet.rpc.neuraprotocol.io"],
+    },
+  },
+  blockExplorers: {
+    default: { 
+      name: "Neura Explorer", 
+      url: "https://testnet-blockscout.infra.neuraprotocol.io" 
+    },
+  },
+  testnet: true,
+} as const satisfies chains.Chain;
+
 export type ScaffoldConfig = {
   targetNetworks: readonly chains.Chain[];
   pollingInterval: number;
@@ -13,7 +39,7 @@ export const DEFAULT_ALCHEMY_API_KEY = "oKxs-03sij-U_N0iOlrSsZFr29-IqbuF";
 
 const scaffoldConfig = {
   // The networks on which your DApp is live
-  targetNetworks: [chains.hardhat],
+  targetNetworks: [neuraTestnet],
 
   // The interval at which your front-end polls the RPC servers for new data
   // it has no effect if you only target the local network (default is 4000)
