@@ -16,12 +16,6 @@ type NotificationProps = {
   position?: ToastPosition;
 };
 
-type NotificationOptions = {
-  duration?: number;
-  icon?: string;
-  position?: ToastPosition;
-};
-
 const ENUM_STATUSES = {
   success: <CheckCircleIcon className="w-7 text-success" />,
   loading: <span className="w-6 loading loading-spinner"></span>,
@@ -31,7 +25,7 @@ const ENUM_STATUSES = {
 };
 
 const DEFAULT_DURATION = 3000;
-const DEFAULT_POSITION: ToastPosition = "top-center";
+const DEFAULT_POSITION: ToastPosition = "top-right";
 
 /**
  * Custom Notification
@@ -46,10 +40,10 @@ const Notification = ({
   return toast.custom(
     (t: Toast) => (
       <div
-        className={`flex flex-row items-start justify-between max-w-sm rounded-xl shadow-center shadow-accent bg-base-200 p-4 transform-gpu relative transition-all duration-500 ease-in-out space-x-2
+        className={`flex flex-row items-start justify-between max-w-sm rounded-xl shadow-center shadow-accent bg-gray-900/95 border border-cyan-500/20 backdrop-blur-xl p-4 transform-gpu relative transition-all duration-500 ease-in-out space-x-2 text-white
         ${
           position.substring(0, 3) == "top"
-            ? `hover:translate-y-1 ${t.visible ? "top-0" : "-top-96"}`
+            ? `hover:translate-y-1 ${t.visible ? "top-20" : "-top-96"}`
             : `hover:-translate-y-1 ${t.visible ? "bottom-0" : "-bottom-96"}`
         }`}
       >
@@ -69,22 +63,15 @@ const Notification = ({
 };
 
 export const notification = {
-  success: (content: React.ReactNode, options?: NotificationOptions) => {
-    return Notification({ content, status: "success", ...options });
-  },
-  info: (content: React.ReactNode, options?: NotificationOptions) => {
-    return Notification({ content, status: "info", ...options });
-  },
-  warning: (content: React.ReactNode, options?: NotificationOptions) => {
-    return Notification({ content, status: "warning", ...options });
-  },
-  error: (content: React.ReactNode, options?: NotificationOptions) => {
-    return Notification({ content, status: "error", ...options });
-  },
-  loading: (content: React.ReactNode, options?: NotificationOptions) => {
-    return Notification({ content, status: "loading", ...options });
-  },
-  remove: (toastId: string) => {
-    toast.remove(toastId);
-  },
+  success: (content: React.ReactNode, options?: Omit<NotificationProps, "content" | "status">) =>
+    Notification({ content, status: "success", ...options }),
+  warning: (content: React.ReactNode, options?: Omit<NotificationProps, "content" | "status">) =>
+    Notification({ content, status: "warning", ...options }),
+  error: (content: React.ReactNode, options?: Omit<NotificationProps, "content" | "status">) =>
+    Notification({ content, status: "error", ...options }),
+  info: (content: React.ReactNode, options?: Omit<NotificationProps, "content" | "status">) =>
+    Notification({ content, status: "info", ...options }),
+  loading: (content: React.ReactNode, options?: Omit<NotificationProps, "content" | "status">) =>
+    Notification({ content, status: "loading", ...options }),
+  remove: (toastId: string) => toast.remove(toastId),
 };
