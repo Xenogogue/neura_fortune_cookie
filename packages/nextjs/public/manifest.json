@@ -1,5 +1,14 @@
 {
-  "name": "Scaffold-ETH 2 DApp",
-  "description": "A DApp built with Scaffold-ETH",
-  "iconPath": "logo.svg"
+  "name": "Fortune Cookie",
+  "short_name": "Fortune",
+  "icons": [
+    {
+      "src": "favicon.svg",
+      "sizes": "32x32",
+      "type": "image/svg+xml"
+    }
+  ],
+  "theme_color": "#F4A460",
+  "background_color": "#1a1a1a",
+  "display": "standalone"
 }

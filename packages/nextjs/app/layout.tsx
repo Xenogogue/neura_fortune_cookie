@@ -1,3 +1,4 @@
+import "@rainbow-me/rainbowkit/styles.css";
 import { Metadata } from "next";
 import AppWithProviders from "~~/components/ScaffoldEthAppWithProviders";
 import "~~/styles/globals.css";
@@ -9,9 +10,9 @@ const baseUrl = process.env.VERCEL_URL
 export const metadata: Metadata = {
   metadataBase: new URL(baseUrl),
   title: "Fortune Cookie",
-  description: "Fortune Cookie dApp on Neura Protocol",
+  description: "Get your fortune on the Neura Network",
   icons: {
-    icon: [{ url: "/favicon.png", sizes: "32x32", type: "image/png" }],
+    icon: [{ url: "/favicon.svg", sizes: "32x32", type: "image/svg+xml" }],
   },
 };
 

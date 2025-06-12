@@ -147,7 +147,12 @@ export const AppWithProviders = ({ children }: { children: React.ReactNode }) =>
     <WagmiConfig config={wagmiConfig}>
       <QueryClientProvider client={queryClient}>
         <ProgressBar height="3px" color="#2299dd" />
-        <RainbowKitProvider avatar={BlockieAvatar} theme={mounted ? customTheme : lightTheme()}>
+        <RainbowKitProvider
+          avatar={BlockieAvatar}
+          theme={mounted ? customTheme : lightTheme()}
+          modalSize="compact"
+          initialChain={wagmiConfig.chains[0]}
+        >
           <style jsx global>{`
             /* Transaction Modal Styles */
             [data-rk] .rk-modal {
@@ -176,6 +181,36 @@ export const AppWithProviders = ({ children }: { children: React.ReactNode }) =>
             /* Ensure the modal appears below the header */
             [data-rk] .rk-modal-container {
               padding-top: 5rem !important;
+            }
+            /* Fix modal positioning */
+            [data-rk] .rk-modal-container {
+              position: fixed !important;
+              top: 0 !important;
+              left: 0 !important;
+              right: 0 !important;
+              bottom: 0 !important;
+              display: flex !important;
+              align-items: center !important;
+              justify-content: center !important;
+              z-index: 50 !important;
+            }
+            /* Ensure modal appears as overlay */
+            [data-rk] .rk-modal {
+              position: relative !important;
+              max-width: 400px !important;
+              width: 90% !important;
+              margin: 0 auto !important;
+            }
+            /* Fix modal backdrop */
+            [data-rk] .rk-modal-backdrop {
+              position: fixed !important;
+              top: 0 !important;
+              left: 0 !important;
+              right: 0 !important;
+              bottom: 0 !important;
+              background: rgba(0, 0, 0, 0.5) !important;
+              backdrop-filter: blur(4px) !important;
+              z-index: 49 !important;
             }
           `}</style>
           <AppContent>{children}</AppContent>

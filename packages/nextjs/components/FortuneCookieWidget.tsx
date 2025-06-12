@@ -1,11 +1,22 @@
-import React, { useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { useScaffoldReadContract, useScaffoldWriteContract } from "../hooks/scaffold-eth";
+import NeuraMetricsPanel from "./NeuraMetricsPanel";
 import { formatEther } from "ethers";
 import { useAccount, useBalance } from "wagmi";
+import { UserGroupIcon } from "@heroicons/react/24/outline";
+
+interface UserMetrics {
+  lastTxHash: string;
+  lastTxStatus: string;
+  lastTxTimestamp: string;
+  lastTxUnixTimestamp: number;
+  confirmationTime: string;
+}
 
 const FortuneCookieWidget = () => {
   const { address } = useAccount();
   const [isLoading, setIsLoading] = useState(false);
+  const [userMetrics, setUserMetrics] = useState<UserMetrics | null>(null);
 
   // Read user's ANKR balance (native token)
   const { data: balance } = useBalance({
@@ -31,15 +42,35 @@ const FortuneCookieWidget = () => {
     args: [address] as [string | undefined],
   });
 
-  const { data: directTime, refetch: refetchDirectTime } = useScaffoldReadContract({
-    contractName: "FortuneCookie",
-    functionName: "lastFortuneTime",
-    args: [address] as [string | undefined],
-  });
-
   // Parse the fortune data
   const userLastFortune = (directFortune as string) || null;
-  const lastFortuneTime = Number(directTime || 0);
+
+  // Fetch user metrics
+  const fetchUserMetrics = useCallback(async () => {
+    if (!address) return;
+
+    try {
+      const response = await fetch(
+        `/api/neura-metrics?address=${address}&contract=0x5FbDB2315678afecb367f032d93F642f64180aa3`,
+      );
+      if (response.ok) {
+        const result = await response.json();
+        if (result.data.userMetrics) {
+          setUserMetrics(result.data.userMetrics);
+        }
+      }
+    } catch (error) {
+      console.error("Failed to fetch user metrics:", error);
+    }
+  }, [address]);
+
+  useEffect(() => {
+    if (address) {
+      fetchUserMetrics();
+      const interval = setInterval(fetchUserMetrics, 30000);
+      return () => clearInterval(interval);
+    }
+  }, [address, fetchUserMetrics]);
 
   // Crack open a fortune
   const { writeContractAsync: crackOpen } = useScaffoldWriteContract({
@@ -62,7 +93,7 @@ const FortuneCookieWidget = () => {
       // Wait for transaction to be mined, then refetch
       setTimeout(async () => {
         await refetchDirectFortune();
-        await refetchDirectTime();
+        await fetchUserMetrics();
         setIsLoading(false);
       }, 3000);
     } catch (error) {
@@ -142,16 +173,6 @@ const FortuneCookieWidget = () => {
                     "🥠 Crack Open Fortune (0.01 ANKR)"
                   )}
                 </button>
-
-                <button
-                  className="w-full bg-gray-800/80 hover:bg-gray-700/80 text-cyan-400 px-6 py-4 rounded-2xl transition-all duration-300 border border-cyan-500/20 hover:border-cyan-500/40 text-lg font-medium"
-                  onClick={async () => {
-                    await refetchDirectFortune();
-                    await refetchDirectTime();
-                  }}
-                >
-                  🔄 Check for Fortune
-                </button>
               </div>
 
               {userLastFortune && userLastFortune.length > 0 && (
@@ -160,12 +181,44 @@ const FortuneCookieWidget = () => {
                     <span className="mr-2">🔮</span> Your Fortune
                   </p>
                   <p className="text-gray-200 italic text-xl leading-relaxed">&ldquo;{userLastFortune}&rdquo;</p>
-                  {lastFortuneTime > 0 && (
-                    <p className="text-sm text-gray-400 mt-4 flex items-center">
-                      <span className="mr-2">🕒</span>
-                      {new Date(lastFortuneTime * 1000).toLocaleString()}
-                    </p>
+
+                  {/* Fortune Stats */}
+                  {userMetrics && userMetrics.lastTxHash && (
+                    <div className="mt-4 p-4 bg-gray-800/40 rounded-xl border border-cyan-500/10 backdrop-blur-sm">
+                      <div className="flex items-center gap-2 mb-2">
+                        <UserGroupIcon className="w-4 h-4 text-cyan-400" />
+                        <span className="text-cyan-400 text-sm font-medium">Your Fortune Stats</span>
+                      </div>
+                      <div className="flex items-center justify-between text-sm">
+                        <a
+                          href={`https://testnet-blockscout.infra.neuraprotocol.io/tx/${userMetrics.lastTxHash}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-cyan-400 font-mono truncate max-w-[200px] hover:text-cyan-300 transition-colors duration-200"
+                        >
+                          {userMetrics.lastTxHash}
+                        </a>
+                        <span
+                          className={`text-xs px-2 py-1 rounded ${
+                            userMetrics.lastTxStatus === "success" || userMetrics.lastTxStatus === "ok"
+                              ? "bg-green-500/20 text-green-400"
+                              : "bg-red-500/20 text-red-400"
+                          }`}
+                        >
+                          {userMetrics.lastTxStatus}
+                        </span>
+                      </div>
+                      <div className="text-xs text-gray-400 mt-1 flex justify-between items-center">
+                        <span>{userMetrics.lastTxTimestamp}</span>
+                        <span className="text-cyan-400">Confirmed within &lt;= {userMetrics.confirmationTime}</span>
+                      </div>
+                    </div>
                   )}
+
+                  {/* Neura Network Metrics */}
+                  <div className="mt-6">
+                    <NeuraMetricsPanel />
+                  </div>
                 </div>
               )}
             </>

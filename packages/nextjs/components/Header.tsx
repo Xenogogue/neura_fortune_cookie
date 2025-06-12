@@ -3,18 +3,8 @@
 import React from "react";
 import Link from "next/link";
 import { RainbowKitCustomConnectButton } from "~~/components/scaffold-eth";
-import { useTargetNetwork } from "~~/hooks/scaffold-eth";
-import { useScaffoldReadContract } from "~~/hooks/scaffold-eth";
 
 const Header = () => {
-  const { targetNetwork } = useTargetNetwork();
-
-  // Read contract balance for treasury info
-  const { data: treasuryBalance } = useScaffoldReadContract({
-    contractName: "FortuneCookie",
-    functionName: "getBalance",
-  });
-
   return (
     <div className="sticky lg:static top-0 navbar bg-gradient-to-r from-gray-900 via-blue-950 to-gray-900 border-b border-cyan-500/20 backdrop-blur-xl z-30">
       <div className="navbar-start">
@@ -43,9 +33,7 @@ const Header = () => {
         </div>
         <Link href="/" className="flex items-center gap-2 ml-4 mr-6">
           <div className="flex flex-col">
-            <span className="font-bold leading-tight text-2xl bg-gradient-to-r from-cyan-400 to-blue-400 bg-clip-text text-transparent">
-              Fortune Cookie
-            </span>
+            <span className="font-bold leading-tight text-2xl text-white">Fortune Cookie</span>
             <span className="text-xs text-cyan-400/80">Neura Protocol</span>
           </div>
         </Link>
@@ -54,19 +42,9 @@ const Header = () => {
         <div className="flex items-center gap-4">
           {/* Network Status */}
           <div className="hidden md:flex items-center gap-2 px-3 py-2 rounded-lg bg-gray-800/50 border border-cyan-500/20">
-            <div
-              className={`w-2 h-2 rounded-full ${targetNetwork.id === 1337 ? "bg-green-500" : "bg-yellow-500"}`}
-            ></div>
-            <span className="text-sm text-gray-300">{targetNetwork.name}</span>
+            <div className="w-2 h-2 rounded-full bg-yellow-500"></div>
+            <span className="text-sm text-gray-300">Neura Testnet</span>
           </div>
-
-          {/* Treasury Balance */}
-          {treasuryBalance && (
-            <div className="hidden md:flex items-center gap-2 px-3 py-2 rounded-lg bg-gray-800/50 border border-cyan-500/20">
-              <span className="text-sm text-cyan-400">Treasury:</span>
-              <span className="text-sm text-gray-300 font-mono">{Number(treasuryBalance) / 1e18} ANKR</span>
-            </div>
-          )}
 
           {/* Connect Button */}
           <RainbowKitCustomConnectButton />
